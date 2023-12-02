@@ -9,16 +9,16 @@
 //! You play several games and record the information from each game (your puzzle input). Each game is listed with its ID number (like the 11 in Game 11: ...) followed by a semicolon-separated list of subsets of cubes that were revealed from the bag (like 3 red, 5 green, 4 blue).
 
 #[derive(PartialEq, Debug)]
-struct Game {
-    number: usize,
-    hands: Vec<Hand>,
+pub struct Game {
+    pub number: usize,
+    pub hands: Vec<Hand>,
 }
 
 #[derive(PartialEq, Debug)]
-struct Hand {
-    red: usize,
-    blue: usize,
-    green: usize,
+pub struct Hand {
+    pub red: usize,
+    pub blue: usize,
+    pub green: usize,
 }
 
 pub fn calculate(input: &str) -> usize {
@@ -39,7 +39,7 @@ pub fn calculate(input: &str) -> usize {
     })
 }
 
-fn parse(input: &str) -> Game {
+pub fn parse(input: &str) -> Game {
     let (game_number, hands_str) = input.split_once(':').unwrap();
     let (_, game_number) = game_number.split_once(" ").unwrap();
     let number = game_number.parse::<usize>().unwrap();
