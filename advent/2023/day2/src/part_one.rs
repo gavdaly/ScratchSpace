@@ -39,10 +39,13 @@ pub fn calculate(input: &str) -> usize {
     })
 }
 
+/// # Panics
+/// This code panics, just written for AOC
+#[must_use]
 pub fn parse(input: &str) -> Game {
-    let (game_number, hands_str) = input.split_once(':').unwrap();
-    let (_, game_number) = game_number.split_once(" ").unwrap();
-    let number = game_number.parse::<usize>().unwrap();
+    let (game_number, hands_str) = input.split_once(':').expect("Has static input.");
+    let (_, game_number) = game_number.split_once(' ').expect("Has static input.");
+    let number = game_number.parse::<usize>().expect("Has static input.");
     let hands = hands_str
         .split("; ")
         .map(|hand| {
@@ -53,8 +56,8 @@ pub fn parse(input: &str) -> Game {
                     green: 0,
                 },
                 |hand, string| {
-                    let (count, color) = string.trim().split_once(" ").unwrap();
-                    let amount = count.parse::<usize>().unwrap();
+                    let (count, color) = string.trim().split_once(' ').expect("Has static input.");
+                    let amount = count.parse::<usize>().expect("Has static input.");
                     match color {
                         "red" => Hand {
                             red: amount,

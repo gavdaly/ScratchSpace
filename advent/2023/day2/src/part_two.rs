@@ -24,24 +24,23 @@
 
 pub fn calculate(input: &str) -> usize {
     let games = input.lines().map(crate::part_one::parse);
-    games.fold(0, |mut total_power, game| {
+    games.fold(0, |total_power, game| {
         let (max_red, max_blue, max_green) =
             game.hands
                 .into_iter()
                 .fold((0, 0, 0), |(mut red, mut blue, mut green), hand| {
                     if red < hand.red {
-                        red = hand.red
+                        red = hand.red;
                     }
                     if blue < hand.blue {
-                        blue = hand.blue
+                        blue = hand.blue;
                     }
                     if green < hand.green {
-                        green = hand.green
+                        green = hand.green;
                     }
                     (red, blue, green)
                 });
-        total_power += max_red * max_blue * max_green;
-        total_power
+        total_power + max_red * max_blue * max_green
     })
 }
 
