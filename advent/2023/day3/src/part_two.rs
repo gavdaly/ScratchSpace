@@ -27,6 +27,7 @@
 
 use std::collections::BTreeMap;
 
+#[must_use]
 pub fn calculate(input: &str) -> usize {
     Schematic::parse(input).calc()
 }

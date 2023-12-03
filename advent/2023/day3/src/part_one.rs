@@ -31,6 +31,7 @@
 
 use std::collections::BTreeMap;
 
+#[must_use]
 pub fn calculate(input: &str) -> usize {
     Schematic::parse(input).calc()
 }
@@ -88,7 +89,6 @@ impl Schematic {
             .clone()
             .into_iter()
             .fold(0, |total, ((y, x1, x2), t)| {
-                dbg!(total, t);
                 if self.contains_key((y, x1, x2)) {
                     total + t
                 } else {
@@ -97,7 +97,6 @@ impl Schematic {
             })
     }
     fn contains_key(&self, (y, x1, x2): (usize, usize, usize)) -> bool {
-        dbg!(x1, x2);
         for x in x1 - 1..=x2 + 1 {
             if self.symbols.contains_key(&(y - 1, x)) {
                 return true;
