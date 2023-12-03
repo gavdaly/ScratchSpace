@@ -1,7 +1,4 @@
-use crate::{
-    conversation::{Conversation, Message},
-    error_template::{AppError, ErrorTemplate},
-};
+use crate::conversation::{Conversation, Message};
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
@@ -33,10 +30,12 @@ pub fn App() -> impl IntoView {
         <Title text="AI Chat"/>
 
         <main>
-
+        {move || conversation().messages.iter().map(|message| view!{
+            <div data-user=message.user>{message.text.clone()}</div>
+        }).collect_view()}
         </main>
         <ActionForm action=send>
-            <textarea />
+            <textarea name="text" />
             <button type="submit">"submit"</button>
         </ActionForm>
     }
@@ -46,6 +45,6 @@ pub fn App() -> impl IntoView {
 async fn send_message(text: String) -> Result<Message, ServerFnError> {
     Ok(Message {
         user: true,
-        text: "response".into(),
+        text: format!("response to: {text}"),
     })
 }

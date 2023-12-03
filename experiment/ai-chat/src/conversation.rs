@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct Conversation {
-    messages: Vec<Message>,
+    pub messages: Vec<Message>,
 }
 
 impl Conversation {
