@@ -1,0 +1,17 @@
+[package]
+name = "encrypted_raii"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aes-gcm = "0.9"
+rand = "0.8"
+rsa = "0.6"
+tokio = { version = "1", features = ["full"] }
+tokio-postgres = "0.7"
+base64 = "0.13"
+sha2 = "0.10"
+bloom = "0.4"
+
+[dev-dependencies]
+tokio-test = "0.4"
