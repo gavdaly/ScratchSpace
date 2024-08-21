@@ -1,4 +1,5 @@
 use rand::random;
+use std::fmt::{Display, Formatter, Result};
 use std::marker::PhantomData;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -53,9 +54,9 @@ impl Suid<Day> {
     }
 }
 
-impl std::fmt::Display for Suid<Day> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:04x}", self.as_u32())
+impl Display for Suid<Day> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{:08x}", self.as_u32())
     }
 }
 
@@ -91,9 +92,9 @@ impl Suid<Hour> {
     }
 }
 
-impl std::fmt::Display for Suid<Hour> {
+impl Display for Suid<Hour> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:08x}", self.as_u64())
+        write!(f, "{:016x}", self.as_u64())
     }
 }
 
@@ -127,9 +128,9 @@ impl Suid<Milisecond> {
     }
 }
 
-impl std::fmt::Display for Suid<Milisecond> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{:016x}", self.as_u128())
+impl Display for Suid<Milisecond> {
+    fn fmt(&self, f: &mut Formatter) -> Result {
+        write!(f, "{:032x}", self.as_u128())
     }
 }
 
