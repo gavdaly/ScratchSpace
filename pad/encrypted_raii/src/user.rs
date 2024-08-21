@@ -126,4 +126,13 @@ async fn search_by_partial_address(client: &Client, partial_address: &str) -> Ve
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_encrypt_decrypt() {
+        let address = "123 Main";
+        let key = [0u8; 32];
+        let encrypted_address = encrypt_address(address, &key);
+        let decrypted_address = decrypt_address(&encrypted_address, &key);
+        assert_eq!(address, decrypted_address);
+    }
 }

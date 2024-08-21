@@ -4,7 +4,6 @@ use aes_gcm::{Aes256Gcm, Key, Nonce}; // Or `Aes128Gcm`
 
 /// Represents an address with encryption and Bloom filter functionality.
 pub struct Address(String);
-}
 
 impl Address {
     /// Creates a new Address instance.
@@ -24,9 +23,8 @@ impl Address {
     pub fn encrypt(&self, key: &[u8]) -> Vec<u8> {
         let cipher = Aes256Gcm::new(Key::from_slice(key));
         let nonce = Nonce::from_slice(&[0u8; 12]); // Use a fixed nonce for deterministic encryption
-
         cipher
-            .encrypt(nonce, self.plaintext.as_bytes())
+            .encrypt(nonce, self.0.as_bytes())
             .expect("Encryption failure!")
     }
 
@@ -56,10 +54,10 @@ impl Address {
     ///
     /// A `BloomFilterWrapper` containing the Bloom filter for the address.
     pub fn create_bloom_filter(&self) -> BloomFilterWrapper {
-        let mut bloom = BloomFilter::with_rate(0.01, self.plaintext.len());
-        for i in 0..self.plaintext.len() {
-            for j in i + 1..=self.plaintext.len() {
-                bloom.insert(&self.plaintext[i..j]);
+        let mut bloom = BloomFilter::with_rate(0.01, self.0.len());
+        for i in 0..self.0.len() {
+            for j in i + 1..=self.0.len() {
+                bloom.insert(&self.0[i..j]);
             }
         }
         BloomFilterWrapper(bloom)

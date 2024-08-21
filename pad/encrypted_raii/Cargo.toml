@@ -11,7 +11,8 @@ tokio = { version = "1", features = ["full"] }
 tokio-postgres = "0.7"
 base64 = "0.13"
 sha2 = "0.10"
-bloom = "0.4"
+bloom = "0.3"
+sqlx = { version = "0.5", features = ["runtime-tokio", "macros"] }
 
 [dev-dependencies]
 tokio-test = "0.4"
