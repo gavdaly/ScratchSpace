@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 800 290" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">
+    <g id="_-Curve-" serif:id="(Curve)" transform="matrix(1,0,0,1,0,-287)">
+        <clipPath id="_clip1">
+            <path d="M0,511.017C338.464,511.017 262.632,290.017 400,290.017C508.564,287.761 485.769,511.067 800,511.017L800,569.017L0,569.017L0,511.017Z"/>
+        </clipPath>
+        <g clip-path="url(#_clip1)">
+            <g transform="matrix(1,0,0,2.01069,0,-595.207)">
+                <path d="M-47.621,539.717L0,521.017C338.464,521.017 262.632,300.017 400,300.017C508.564,297.761 485.769,521.067 800,521.017L911.443,531.017C813.651,558.119 886.015,579.003 800,579.017L0,579.017C-142.378,578.972 -47.621,539.717 -47.621,539.717Z" style="fill:url(#_Radial2);"/>
+            </g>
+        </g>
+    </g>
+    <g transform="matrix(1,0,0,1,0,-338.983)">
+        <path d="M0,563C338.464,563 262.632,342 400,342C508.564,339.744 485.769,563.05 800,563" style="fill:none;stroke:black;stroke-width:2.5px;"/>
+    </g>
+    <defs>
+        <radialGradient id="_Radial2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(494.98,0,0,139.508,416.463,439.508)"><stop offset="0" style="stop-color:rgb(0,112,255);stop-opacity:0.75"/><stop offset="1" style="stop-color:white;stop-opacity:1"/></radialGradient>
+    </defs>
+</svg>
