@@ -1,12 +1,4 @@
+mod email_address;
 mod password;
+pub use email_address::EmailAddress;
 pub use password::Password;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        assert_eq!(true, true);
-    }
-}
