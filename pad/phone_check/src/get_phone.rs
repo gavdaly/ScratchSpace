@@ -16,7 +16,7 @@ pub struct Phone {
 
 impl Phone {
     pub async fn new(number: &str) -> Result<Phone> {
-        let number = parse_phone_number(number);
+        let number = parse_phone_number(number)?;
         let phone_type = get_line_type(&number).await?;
         Ok(Self { number, phone_type })
     }
@@ -65,7 +65,7 @@ async fn get_line_type(number: &str) -> Result<PhoneType> {
     Ok(PhoneType::Unknown)
 }
 
-fn parse_phone_number(number: &str) -> String {
+fn parse_phone_number(number: &str) -> Result<String> {
     let mut first_digit = true;
     let result = number.chars().fold(vec![], |mut acc, c| {
         if c.is_ascii_digit() {
@@ -78,10 +78,10 @@ fn parse_phone_number(number: &str) -> String {
         acc
     });
     if result.len() != 10 {
-        return "error".into();
+        return Err(anyhow::Error::msg("Invalid Phone Number"));
     }
 
-    result.iter().collect()
+    Ok(result.iter().collect())
 }
 
 async fn fetch_phone_number(number: &str) -> Result<String, surf::Error> {
