@@ -15,14 +15,13 @@ async fn main() -> Result<()> {
 
 async fn is_phone_mobile(req: Request<()>) -> Result<String> {
     let number = req.param("number")?;
-    let phone = get_phone::Phone::new(number);
-    let is_cell = phone.is_cell_phone().await;
-    Ok(is_cell.to_string())
+    Ok(get_phone::Phone::new(number)
+        .await?
+        .is_cell_phone()
+        .to_string())
 }
 
 async fn get_phone_type(req: Request<()>) -> Result<String> {
     let number = req.param("number")?;
-    let phone = get_phone::Phone::new(number);
-    let result = phone.line_type().await.unwrap();
-    Ok(result.to_string())
+    Ok(get_phone::Phone::new(number).await?.line_type().to_string())
 }

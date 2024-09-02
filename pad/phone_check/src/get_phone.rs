@@ -1,6 +1,7 @@
+use anyhow::Result;
 use scraper::{Html, Selector};
 
-#[derive(Copy, Clone, Debug)]
+#[derive(PartialEq, Eq, Copy, Clone, Debug)]
 pub enum PhoneType {
     Cell,
     Landline,
@@ -10,53 +11,50 @@ pub enum PhoneType {
 #[derive(Debug)]
 pub struct Phone {
     number: String,
+    phone_type: PhoneType,
 }
 
 impl Phone {
-    pub fn new(number: &str) -> Phone {
+    pub async fn new(number: &str) -> Result<Phone> {
         let number = parse_phone_number(number);
-        Phone { number }
+        let phone_type = get_line_type(&number).await?;
+        Ok(Self { number, phone_type })
     }
-    pub async fn line_type(&self) -> Result<PhoneType, String> {
-        get_line_type(&self.number).await
+    pub fn line_type(&self) -> PhoneType {
+        self.phone_type
     }
-    pub async fn is_cell_phone(&self) -> bool {
-        match self.line_type().await {
-            Ok(PhoneType::Cell) => true,
-            _ => false,
-        }
+    pub fn is_cell_phone(&self) -> bool {
+        self.phone_type == PhoneType::Cell
     }
 }
 
-fn uri(n: &str) -> String {
+fn uri(n: &str) -> Result<String> {
+    if n.len() != 10 {
+        return Err(anyhow::Error::msg("Invalid Phone Number"));
+    }
+
     let area = &n[0..3];
     let three = &n[3..6];
     let four = &n[6..];
-    format!("https://canada411.yellowpages.ca/fs/1-{area}-{three}-{four}/")
+    Ok(format!(
+        "https://canada411.yellowpages.ca/fs/1-{area}-{three}-{four}/"
+    ))
 }
 
-async fn get_line_type(number: &str) -> Result<PhoneType, String> {
-    if number.len() != 10 {
-        return Err("Invalid Phone Number".to_owned());
-    }
-
+async fn get_line_type(number: &str) -> Result<PhoneType> {
     let number = match fetch_phone_number(number).await {
         Ok(n) => n,
-        Err(e) => return Err(e.to_string()),
+        Err(e) => return Err(anyhow::Error::msg(e.to_string())),
     };
 
     let doc = Html::parse_document(&number);
     let selector =
         Selector::parse("#ypgBody > div.page__container.page__container--full > div > div.fs__root > div.fs__conainer > div.fs__content > div:nth-child(3) > ul > li:nth-child(2)").expect("Error paring CSS Selector");
 
-    dbg!(&doc);
-
     let val = doc
         .select(&selector)
         .map(|e| e.inner_html())
         .collect::<String>();
-
-    dbg!(&val);
 
     if val.contains("Cell Number") {
         return Ok(PhoneType::Cell);
@@ -87,7 +85,7 @@ fn parse_phone_number(number: &str) -> String {
 }
 
 async fn fetch_phone_number(number: &str) -> Result<String, surf::Error> {
-    let uri = uri(number);
+    let uri = uri(number)?;
     let body = surf::get(uri).await?.body_string().await?;
     Ok(body)
 }
