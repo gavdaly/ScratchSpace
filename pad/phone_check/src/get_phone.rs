@@ -105,3 +105,39 @@ impl std::fmt::Display for PhoneType {
         write!(f, "{}", Into::<String>::into(*self))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[async_std::test]
+    async fn test_line_type() {
+        let mobile =
+            std::env::var("MOBILE_PHONE_NUMBER").expect("expect MOBILE_PHONE_NUMBER to be set");
+        let phone = Phone::new(&mobile).await.unwrap();
+        assert_eq!(phone.line_type(), PhoneType::Cell);
+    }
+
+    #[async_std::test]
+    async fn test_is_cell_phone() {
+        let mobile =
+            std::env::var("MOBILE_PHONE_NUMBER").expect("expect MOBILE_PHONE_NUMBER to be set");
+        let phone = Phone::new(&mobile).await.unwrap();
+        assert!(phone.is_cell_phone());
+    }
+
+    #[test]
+    fn test_uri_valid() {
+        let result = uri("1234567890").unwrap();
+        assert_eq!(
+            result,
+            "https://canada411.yellowpages.ca/fs/1-123-456-7890/"
+        );
+    }
+
+    #[test]
+    fn test_uri_invalid() {
+        let result = uri("12345");
+        assert!(result.is_err());
+    }
+}
