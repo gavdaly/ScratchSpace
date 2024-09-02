@@ -24,5 +24,5 @@ async fn get_phone_type(req: Request<()>) -> Result<String> {
     let number = req.param("number")?;
     let phone = get_phone::Phone::new(number);
     let result = phone.line_type().await.unwrap();
-    Ok(result.into())
+    Ok(result.to_string())
 }
