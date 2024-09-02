@@ -1,59 +1,35 @@
-#![feature(array_chunks)]
-#![feature(iter_array_chunks)]
+pub struct Crock32;
 
-use bit_vec::BitVec;
+/// This is an implementation of Crockford's base32 encoding
+impl Crock32 {
+    /// Encode a string of characters into a base32 encoded string
+    pub fn encode<const N: usize>(input: [char; N]) -> Vec<u8> {
+        let mut buffer: u32 = 0;
+        let mut bits_in_buffer: u8 = 0;
+        let mut result = Vec::new();
 
-fn decode(input: &[u8]) -> Vec<char> {
-    let bits = BitVec::from_bytes(input);
-    bits.iter()
-        .array_chunks::<5>()
-        .fold(vec![], |mut acc, chunks| {
-            acc.push(decode_5(chunks));
-            acc
-        })
+        for &char in &input {
+            let value = encode_char(&char) as u32;
+            buffer = (buffer << 5) | value;
+            bits_in_buffer += 5;
+
+            while bits_in_buffer >= 8 {
+                bits_in_buffer -= 8;
+                let byte = (buffer >> bits_in_buffer) as u8;
+                result.push(byte);
+                buffer &= (1 << bits_in_buffer) - 1;
+            }
+        }
+
+        result
+    }
+
+    pub fn decode<const N: usize>(_input: [u8; N]) -> String {
+        unimplemented!()
+    }
 }
 
-///
-// fn dec<const N: usize, const R: usize>(input: &[u8; N]) -> [char; R] {
-//     assert!(R != N * 8 / 5 + 1, "array must be a respective size");
-//     assert!(N != 0, "chunk size must be non-zero");
-//     let return_array_length = N * 8 / 5 + 1;
-//     let mut ret = ['0'; R];
-//     let ba = BitVec::new();
-
-//     ba.iter().array_chunks::<5>();
-//     //get a const bit array into chunks of size 5;
-//     todo!()
-// };
-
-// fn encode_const<const N: usize>(input: &[char; N]) -> Vec<u8> {
-//     let b = BitVec::from_bytes(input);
-//     assert!(N != 0, "chunk size must be non-zero");
-//     assert!(N % 2 != 0, "chunk size must be an even length");
-//     let mask: u8 = 0b11111000;
-//     input.array_chunks::<2>().map(
-//         |[first, second]|
-//         (encode_nibble(first) << 4) + encode_nibble(second)).collect::<Vec<_>>()
-//     }
-
-// fn encode(input: &[char]) -> Vec<u8> {
-//     let mask: u8 = 0b11111000;
-//     input.array_chunks::<2>().map(
-//         |[first, second]|
-//         (encode_nibble(first) << 4) + encode_nibble(second)).collect::<Vec<_>>()
-//     }
-
-// fn decode<const N: usize>(input: &[u8; N]) -> Vec<char> {
-//     let b = BitVec::from_bytes(input);
-
-//     input.iter().fold(Vec::with_capacity(N * 2),  |mut acc, bit| {
-//         acc.push(decode_nibble(bit % 128));
-//         acc.push(decode_nibble(bit >> 4));
-//         acc
-//     })
-// }
-
-fn encode(input: &char) -> u8 {
+fn encode_char(input: &char) -> u8 {
     match input {
         '0' | 'O' | 'o' => 0,
         '1' | 'I' | 'i' | 'L' | 'l' => 1,
@@ -91,50 +67,48 @@ fn encode(input: &char) -> u8 {
     }
 }
 
-fn decode_5(input: [bool; 5]) -> char {
-    match input {
-        [false, false, false, false, false] => '0',
-        [false, false, false, false, true] => '1',
-        [false, false, false, true, false] => '2',
-        [false, false, false, true, true] => '3',
-        [false, false, true, false, false] => '4',
-        [false, false, true, false, true] => '5',
-        [false, false, true, true, false] => '6',
-        [false, false, true, true, true] => '7',
-        [false, true, false, false, false] => '8',
-        [false, true, false, false, true] => '9',
-        [false, true, false, true, false] => 'A',
-        [false, true, false, true, true] => 'B',
-        [false, true, true, false, false] => 'C',
-        [false, true, true, false, true] => 'D',
-        [false, true, true, true, false] => 'E',
-        [false, true, true, true, true] => 'F',
-        [true, false, false, false, false] => 'G',
-        [true, false, false, false, true] => 'H',
-        [true, false, false, true, false] => 'J',
-        [true, false, false, true, true] => 'K',
-        [true, false, true, false, false] => 'M',
-        [true, false, true, false, true] => 'N',
-        [true, false, true, true, false] => 'P',
-        [true, false, true, true, true] => 'Q',
-        [true, true, false, false, false] => 'R',
-        [true, true, false, false, true] => 'S',
-        [true, true, false, true, false] => 'T',
-        [true, true, false, true, true] => 'V',
-        [true, true, true, false, false] => 'W',
-        [true, true, true, false, true] => 'X',
-        [true, true, true, true, false] => 'Y',
-        [true, true, true, true, true] => 'Z',
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_encode() {}
+    fn test_encode_basic() {
+        let input = ['A', 'B', 'C', 'D', 'E'];
+        let encoded = Crock32::encode(input);
+        assert_eq!(encoded, vec![0x52, 0xD8, 0xD7]);
+    }
 
     #[test]
-    fn test_decode() {}
+    fn test_encode_case_insensitivity() {
+        let input = ['a', 'b', 'c', 'd', 'e'];
+        let encoded = Crock32::encode(input);
+        assert_eq!(encoded, vec![0x52, 0xD8, 0xD7]);
+    }
+
+    #[test]
+    fn test_encode_special_characters() {
+        let input = ['0', 'O', '1', 'I', 'L'];
+        let encoded = Crock32::encode(input);
+        assert_eq!(encoded, vec![0x00, 0x02, 0x10]);
+    }
+
+    #[test]
+    fn test_encode_empty_input() {
+        let input: [char; 0] = [];
+        let encoded = Crock32::encode(input);
+        assert_eq!(encoded, vec![]);
+    }
+
+    #[test]
+    fn test_encode_full_alphabet() {
+        let input = [
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
+            'V', 'W', 'X', 'Y', 'Z',
+        ];
+        let encoded = Crock32::encode(input);
+        assert_eq!(
+            encoded,
+            vec![0x52, 0xD8, 0xD7, 0x3E, 0x11, 0x94, 0xE9, 0x5B, 0x5F, 0x19, 0xD6, 0xF9, 0xDF]
+        );
+    }
 }
