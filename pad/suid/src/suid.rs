@@ -3,12 +3,23 @@ use std::fmt::{Display, Formatter, Result};
 use std::marker::PhantomData;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-struct Day;
-struct Hour;
-struct Milisecond;
+pub struct Day;
+pub struct Hour;
+pub struct Milisecond;
 
+/// Represents a Simple Unique Identifier (SUID) with a generic type parameter.
+///
+/// The SUID is stored as a vector of bytes and includes a phantom data field
+/// to carry the generic type information.
+///
+/// The generic type `T` is used to differentiate between different time-based
+/// SUID implementations (e.g., Day, Hour, Millisecond).
+///
+/// # Type Parameters
+///
+/// * `T` - A type parameter that determines the specific SUID implementation.
 #[derive(Debug)]
-struct Suid<T> {
+pub struct Suid<T> {
     value: Vec<u8>,
     data: std::marker::PhantomData<T>,
 }
@@ -145,6 +156,78 @@ fn now() -> Duration {
 mod tests {
     use super::*;
 
+    use std::thread::sleep;
+    use std::time::Duration;
+
+    #[test]
+    fn test_day_structure() {
+        let day1 = Suid::<Day>::new();
+
+        let timestamp = (day1.as_u32() >> 16) as u16;
+        let day3 = Suid::<Day>::new_with_timestamp(timestamp);
+        assert_eq!(day3.as_u32() >> 16, timestamp as u32);
+    }
+
+    #[test]
+    fn test_hour_structure() {
+        let hour1 = Suid::<Hour>::new();
+
+        let timestamp = (hour1.as_u64() >> 32) as u32;
+        let hour3 = Suid::<Hour>::new_with_timestamp(timestamp);
+        assert_eq!(hour3.as_u64() >> 32, timestamp as u64);
+    }
+
+    #[test]
+    fn test_milisecond_structure() {
+        let ms1 = Suid::<Milisecond>::new();
+        let timestamp = (ms1.as_u128() >> 64) as u64;
+        let ms3 = Suid::<Milisecond>::new_with_timestamp(timestamp);
+        assert_eq!(ms3.as_u128() >> 64, timestamp as u128);
+    }
+
+    #[test]
+    fn test_milisecond_structure2() {
+        let ms1 = Suid::<Milisecond>::new();
+        sleep(Duration::from_millis(1));
+        let ms2 = Suid::<Milisecond>::new();
+        assert!(ms2.as_u128() > ms1.as_u128());
+    }
+
+    #[test]
+    fn test_display() {
+        let day = Suid::<Day>::new();
+        assert_eq!(format!("{}", day).len(), 8);
+
+        let hour = Suid::<Hour>::new();
+        assert_eq!(format!("{}", hour).len(), 16);
+
+        let ms = Suid::<Milisecond>::new();
+        assert_eq!(format!("{}", ms).len(), 32);
+    }
+
+    #[test]
+    fn test_uniqueness() {
+        let mut set = std::collections::HashSet::new();
+        for _ in 0..10000 {
+            let id = Suid::<Milisecond>::new();
+            assert!(set.insert(id.as_u128()));
+        }
+    }
+
+    #[test]
+    fn test_edge_cases() {
+        let min_day = Suid::<Day>::new_with_timestamp(0);
+        let max_day = Suid::<Day>::new_with_timestamp(u16::MAX);
+        assert!(max_day.as_u32() > min_day.as_u32());
+
+        let min_hour = Suid::<Hour>::new_with_timestamp(0);
+        let max_hour = Suid::<Hour>::new_with_timestamp(u32::MAX);
+        assert!(max_hour.as_u64() > min_hour.as_u64());
+
+        let min_ms = Suid::<Milisecond>::new_with_timestamp(0);
+        let max_ms = Suid::<Milisecond>::new_with_timestamp(u64::MAX);
+        assert!(max_ms.as_u128() > min_ms.as_u128());
+    }
     #[test]
     fn test_new_day() {
         let day = Suid::<Day>::new();
