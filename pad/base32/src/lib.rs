@@ -1,34 +1,7 @@
-pub struct Crock32;
+mod crock32;
+mod crock32data;
 
 /// This is an implementation of Crockford's base32 encoding
-impl Crock32 {
-    /// Encode a string of characters into a base32 encoded string
-    pub fn encode<const N: usize>(input: [char; N]) -> Vec<u8> {
-        let mut buffer: u32 = 0;
-        let mut bits_in_buffer: u8 = 0;
-        let mut result = Vec::new();
-
-        for &char in &input {
-            let value = encode_char(&char) as u32;
-            buffer = (buffer << 5) | value;
-            bits_in_buffer += 5;
-
-            while bits_in_buffer >= 8 {
-                bits_in_buffer -= 8;
-                let byte = (buffer >> bits_in_buffer) as u8;
-                result.push(byte);
-                buffer &= (1 << bits_in_buffer) - 1;
-            }
-        }
-
-        result
-    }
-
-    pub fn decode<const N: usize>(_input: [u8; N]) -> String {
-        unimplemented!()
-    }
-}
-
 fn encode_char(input: &char) -> u8 {
     match input {
         '0' | 'O' | 'o' => 0,
@@ -63,52 +36,44 @@ fn encode_char(input: &char) -> u8 {
         'x' | 'X' => 29,
         'y' | 'Y' => 30,
         'z' | 'Z' => 31,
-        _ => 0,
+        _ => panic!("Invalid character"),
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_encode_basic() {
-        let input = ['A', 'B', 'C', 'D', 'E'];
-        let encoded = Crock32::encode(input);
-        assert_eq!(encoded, vec![0x52, 0xD8, 0xD7]);
-    }
-
-    #[test]
-    fn test_encode_case_insensitivity() {
-        let input = ['a', 'b', 'c', 'd', 'e'];
-        let encoded = Crock32::encode(input);
-        assert_eq!(encoded, vec![0x52, 0xD8, 0xD7]);
-    }
-
-    #[test]
-    fn test_encode_special_characters() {
-        let input = ['0', 'O', '1', 'I', 'L'];
-        let encoded = Crock32::encode(input);
-        assert_eq!(encoded, vec![0x00, 0x02, 0x10]);
-    }
-
-    #[test]
-    fn test_encode_empty_input() {
-        let input: [char; 0] = [];
-        let encoded = Crock32::encode(input);
-        assert_eq!(encoded, vec![]);
-    }
-
-    #[test]
-    fn test_encode_full_alphabet() {
-        let input = [
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'M', 'N', 'P', 'Q', 'R', 'S', 'T',
-            'V', 'W', 'X', 'Y', 'Z',
-        ];
-        let encoded = Crock32::encode(input);
-        assert_eq!(
-            encoded,
-            vec![0x52, 0xD8, 0xD7, 0x3E, 0x11, 0x94, 0xE9, 0x5B, 0x5F, 0x19, 0xD6, 0xF9, 0xDF]
-        );
+fn decode_u8(input: u16) -> char {
+    match input {
+        0 => '0',
+        1 => '1',
+        2 => '2',
+        3 => '3',
+        4 => '4',
+        5 => '5',
+        6 => '6',
+        7 => '7',
+        8 => '8',
+        9 => '9',
+        10 => 'A',
+        11 => 'B',
+        12 => 'C',
+        13 => 'D',
+        14 => 'E',
+        15 => 'F',
+        16 => 'G',
+        17 => 'H',
+        18 => 'J',
+        19 => 'K',
+        20 => 'M',
+        21 => 'N',
+        22 => 'P',
+        23 => 'Q',
+        24 => 'R',
+        25 => 'S',
+        26 => 'T',
+        27 => 'V',
+        28 => 'W',
+        29 => 'X',
+        30 => 'Y',
+        31 => 'Z',
+        _ => panic!("invalid input"),
     }
 }
