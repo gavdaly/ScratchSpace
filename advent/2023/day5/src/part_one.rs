@@ -109,12 +109,8 @@ use winnow::{
     PResult, Parser,
 };
 
-pub fn calculate(input: &str) -> Option<u32> {
-    let a = Almanac::parse(input);
-    match a.get_lowest_location() {
-        Some(a) => Some(a),
-        None => None,
-    }
+pub fn calculate(input: &str) -> u32 {
+    Almanac::parse(input).get_lowest_location()
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -127,7 +123,7 @@ impl Almanac {
     pub fn parse(input: &str) -> Self {
         parse_almanac.parse(input).unwrap()
     }
-    pub fn get_lowest_location(&self) -> Option<u32> {
+    pub fn get_lowest_location(&self) -> u32 {
         self.seeds
             .clone()
             .into_iter()
@@ -135,18 +131,14 @@ impl Almanac {
                 let mut current_mapping = self.get_mapping_from("seed").unwrap();
                 let mut mapping_number = s;
                 while current_mapping.to != "location" {
-                    mapping_number = current_mapping
-                        .plots
-                        .iter()
-                        .find_map(|p| p.get_to(mapping_number))
-                        .unwrap();
-
+                    mapping_number = current_mapping.find_between(mapping_number);
                     current_mapping = self.get_mapping_from(&current_mapping.to()).unwrap();
                 }
-
-                s
+                dbg!(&mapping_number, current_mapping);
+                mapping_number
             })
             .min()
+            .unwrap_or_default()
     }
     fn get_mapping_from(&self, location: &str) -> Option<Mapping> {
         self.mappings
@@ -164,10 +156,12 @@ struct Mapping {
 }
 
 impl Mapping {
-    fn _find_between(&self, location: u32) -> impl Iterator<Item = &Plot> {
+    fn find_between(&self, location: u32) -> u32 {
         self.plots
             .iter()
-            .filter(move |p| p.from < location && (p.from + p.distance) > location)
+            .filter_map(|p| p.get_to(location))
+            .min()
+            .unwrap_or(location)
     }
     fn to(&self) -> String {
         self.to.clone()
@@ -186,11 +180,11 @@ impl Plot {
         Self { from, to, distance }
     }
     fn get_to(&self, input: u32) -> Option<u32> {
-        if input <= self.from || input > (self.from + self.distance) {
+        if input < self.from || input >= (self.from + self.distance) {
             return None;
         }
-        let input_dist = input - self.from;
-        Some(self.to + input_dist)
+        let dist = self.to as i32 - self.from as i32;
+        Some((input as i32 - dist) as u32)
     }
 }
 
@@ -274,6 +268,29 @@ mod day5_part_one_tests {
         assert_eq!(result, expected)
     }
 
+    #[test]
+    fn test_plots_get_to() {
+        let plots = Plot::new(52, 50, 48);
+        assert_eq!(plots.get_to(55), Some(57));
+        assert_eq!(plots.get_to(52), Some(54));
+        assert_eq!(plots.get_to(51), None);
+        assert_eq!(plots.get_to(99), Some(101));
+        assert_eq!(plots.get_to(100), None);
+    }
+
+    #[test]
+    fn test_mapping_find_between() {
+        let mapping = Mapping {
+            from: "seed".into(),
+            to: "soil".into(),
+            plots: vec![Plot::new(50, 98, 2), Plot::new(52, 50, 48)],
+        };
+        assert_eq!(mapping.find_between(79), 81);
+        assert_eq!(mapping.find_between(14), 14);
+        assert_eq!(mapping.find_between(55), 57);
+        assert_eq!(mapping.find_between(13), 13);
+    }
+
     const INPUT: &str = r#"seeds: 79 14 55 13
 
 seed-to-soil map:
@@ -316,6 +333,6 @@ humidity-to-location map:
     #[test]
     fn calculate_result() {
         let result = calculate(INPUT);
-        assert_eq!(result, Some(35));
+        assert_eq!(result, 35);
     }
 }
