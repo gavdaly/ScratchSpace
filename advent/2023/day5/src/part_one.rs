@@ -109,68 +109,72 @@ use winnow::{
     PResult, Parser,
 };
 
-pub fn calculate(input: &str) -> u32 {
+pub fn calculate(input: &str) -> Option<u32> {
     let a = Almanac::parse(input);
-    let a = a.get_lowest_location();
-    *a.unwrap()
+    match a.get_lowest_location() {
+        Some(a) => Some(a),
+        None => None,
+    }
 }
 
-#[derive(Debug, PartialEq)]
-struct Almanac<'a> {
+#[derive(Clone, Debug, PartialEq)]
+struct Almanac {
     seeds: Vec<u32>,
-    mappings: Vec<Mapping<'a>>,
+    mappings: Vec<Mapping>,
 }
 
-impl<'a> Almanac<'a> {
-    pub fn parse(input: &'a str) -> Self {
+impl Almanac {
+    pub fn parse(input: &str) -> Self {
         parse_almanac.parse(input).unwrap()
     }
-    pub fn get_lowest_location(&self) -> Option<&u32> {
+    pub fn get_lowest_location(&self) -> Option<u32> {
         self.seeds
-            .iter()
+            .clone()
+            .into_iter()
             .map(|s| {
                 let mut current_mapping = self.get_mapping_from("seed").unwrap();
-                let mut mapping_number = *s;
+                let mut mapping_number = s;
                 while current_mapping.to != "location" {
-                    dbg!(current_mapping);
-                    dbg!(mapping_number);
                     mapping_number = current_mapping
                         .plots
                         .iter()
                         .find_map(|p| p.get_to(mapping_number))
                         .unwrap();
 
-                    current_mapping = self.get_mapping_from(current_mapping.to()).unwrap();
+                    current_mapping = self.get_mapping_from(&current_mapping.to()).unwrap();
                 }
 
                 s
             })
             .min()
     }
-    fn get_mapping_from(&self, location: &str) -> Option<&Mapping> {
-        self.mappings.iter().find(|m| m.from == location)
+    fn get_mapping_from(&self, location: &str) -> Option<Mapping> {
+        self.mappings
+            .clone()
+            .into_iter()
+            .find(|m| m.from == location)
     }
 }
 
-#[derive(Debug, PartialEq)]
-struct Mapping<'a> {
-    from: &'a str,
-    to: &'a str,
+#[derive(Clone, Debug, PartialEq)]
+struct Mapping {
+    from: String,
+    to: String,
     plots: Vec<Plot>,
 }
 
-impl<'a> Mapping<'a> {
-    fn find_between(&self, location: &'a u32) -> impl Iterator<Item = &Plot> {
+impl Mapping {
+    fn _find_between(&self, location: u32) -> impl Iterator<Item = &Plot> {
         self.plots
             .iter()
-            .filter(move |p| &p.from < location && &(p.from + p.distance) > location)
+            .filter(move |p| p.from < location && (p.from + p.distance) > location)
     }
-    fn to(&self) -> &'a str {
-        self.to
+    fn to(&self) -> String {
+        self.to.clone()
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 struct Plot {
     from: u32,
     to: u32,
@@ -195,10 +199,14 @@ fn parse_plot(input: &mut &str) -> PResult<Plot> {
     Ok(Plot::new(from, to, distance))
 }
 
-fn parse_mapping<'a>(input: &mut &'a str) -> PResult<Mapping<'a>> {
+fn parse_mapping(input: &mut &str) -> PResult<Mapping> {
     let ((from, to), _, plots) =
         (parse_header, newline, separated(1.., parse_plot, newline)).parse_next(input)?;
-    Ok(Mapping { from, to, plots })
+    Ok(Mapping {
+        from: from.into(),
+        to: to.into(),
+        plots,
+    })
 }
 
 fn parse_header<'a>(input: &mut &'a str) -> PResult<(&'a str, &'a str)> {
@@ -213,7 +221,7 @@ fn parse_number_seq(input: &mut &str) -> PResult<Vec<u32>> {
     separated(1.., dec_uint::<&str, u32, _>, ' ').parse_next(input)
 }
 
-fn parse_almanac<'a>(input: &mut &'a str) -> PResult<Almanac<'a>> {
+fn parse_almanac<'a>(input: &mut &'a str) -> PResult<Almanac> {
     let (seeds, _, _, mappings) = (
         parse_seeds,
         newline,
@@ -259,8 +267,8 @@ mod day5_part_one_tests {
 52 50 48"#;
         let result = parse_mapping.parse(input).unwrap();
         let expected = Mapping {
-            from: "seed",
-            to: "soil",
+            from: "seed".into(),
+            to: "soil".into(),
             plots: vec![Plot::new(50, 98, 2), Plot::new(52, 50, 48)],
         };
         assert_eq!(result, expected)
@@ -308,6 +316,6 @@ humidity-to-location map:
     #[test]
     fn calculate_result() {
         let result = calculate(INPUT);
-        assert_eq!(result, 35);
+        assert_eq!(result, Some(35));
     }
 }

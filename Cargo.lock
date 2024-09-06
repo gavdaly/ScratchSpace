@@ -1313,6 +1313,9 @@ version = "0.1.0"
 [[package]]
 name = "day5"
 version = "0.1.0"
+dependencies = [
+ "winnow",
+]
 
 [[package]]
 name = "day6"
