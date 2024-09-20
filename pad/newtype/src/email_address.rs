@@ -5,12 +5,19 @@ pub struct EmailAddress(String);
 // #[error("{0} is not a valid email address")]
 // pub struct EmailAddressError(String);
 
+type R<T> = Result<T, EmailError>;
+
+#[derive(Debug)]
+pub enum EmailError {
+    InvalidEmail,
+}
+
 impl EmailAddress {
-    pub fn new(email: &str) -> Result<Self, String> {
+    pub fn new(email: &str) -> R<Self> {
         if email.contains('@') {
             Ok(Self(email.to_string()))
         } else {
-            Err("Invalid email address".to_string())
+            Err(EmailError::InvalidEmail)
         }
     }
     pub fn into_string(self) -> String {
@@ -33,7 +40,8 @@ impl AsRef<str> for EmailAddress {
 impl TryFrom<&str> for EmailAddress {
     type Error = String;
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
-        EmailAddress::new(value)
+    fn try_from(value: &str) -> Result<Self, String> {
+        let e = |_: EmailError| "Invalid email address".to_string();
+        EmailAddress::new(value).map_err(e)
     }
 }
