@@ -1,29 +1,40 @@
 pub mod address;
 pub mod bloom_filter_wrapper;
+pub mod encrypted;
+use address::Address;
+use encrypted::{Encrypted, Searchable};
 
 #[cfg(test)]
 mod tests {
     use super::address::Address;
     use super::bloom_filter_wrapper::BloomFilterWrapper;
     use rand::rngs::OsRng;
-    use rsa::{RsaPrivateKey, RsaPublicKey, PublicKey, PaddingScheme};
-    use sqlx::{PgPool, query, query_as};
+    use rsa::{PaddingScheme, PublicKey, RsaPrivateKey, RsaPublicKey};
     use sqlx::postgres::PgPoolOptions;
+    use sqlx::{query, query_as, PgPool};
     use tokio_test::block_on;
 
     fn generate_key_pair() -> (Vec<u8>, Vec<u8>) {
         let mut rng = OsRng;
         let bits = 2048;
-        let private_key = RsaPrivateKey::new(&mut rng, bits).expect("Failed to generate private key");
+        let private_key =
+            RsaPrivateKey::new(&mut rng, bits).expect("Failed to generate private key");
         let public_key = RsaPublicKey::from(&private_key);
 
-        let private_key_pem = private_key.to_pkcs8().unwrap();
-        let public_key_pem = public_key.to_pkcs1().unwrap();
+        let private_key_pem = private_key
+            .to_pkcs8()
+            .expect("Failed to convert private key");
+        let public_key_pem = public_key.to_pkcs1().expect("Failed to convert public key");
 
         (private_key_pem, public_key_pem)
     }
 
-    async fn store_encrypted_address_with_bloom_filter(pool: &PgPool, user_id: i32, encrypted_address: &[u8], address: &Address) {
+    async fn store_encrypted_address_with_bloom_filter(
+        pool: &PgPool,
+        user_id: i32,
+        encrypted_address: &[u8],
+        address: &Address,
+    ) {
         let bloom_filter = address.create_bloom_filter();
         let bloom_bytes = bloom_filter.to_bytes();
 
@@ -75,7 +86,8 @@ mod tests {
         let encrypted_address = address.encrypt(&symmetric_key);
 
         // Store encrypted address and bloom filter
-        store_encrypted_address_with_bloom_filter(&pool, user_id, &encrypted_address, &address).await;
+        store_encrypted_address_with_bloom_filter(&pool, user_id, &encrypted_address, &address)
+            .await;
 
         // Search by partial address
         let partial_address = "Main";
