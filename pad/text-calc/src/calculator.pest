@@ -1,0 +1,27 @@
+// calculator.pest
+// Grammar definitions for the calculator.
+
+// Ignored whitespace (spaces, tabs, newlines).
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+
+// Top-level expression, includes conversion expressions.
+expression = { conversion | term ~ (("+" | "-") ~ term)* }
+term       = { factor ~ (("*" | "/") ~ factor)* }
+factor     = { power }
+power      = { unary ~ ("^" ~ power)? }
+unary      = { (("+" | "-"))* ~ primary }
+primary    = { number_with_unit | function | grouping }
+
+// Grouping symbols: parentheses, square brackets, curly braces.
+grouping   = { "(" ~ expression ~ ")" | "[" ~ expression ~ "]" | "{" ~ expression ~ "}" }
+
+// Conversion expression, e.g., "5 kg to lb".
+conversion = { number_with_unit ~ _TO ~ unit }
+_TO        = _{ "to" }
+
+// Number with an optional unit, e.g., "5 kg".
+number_with_unit = { number ~ unit? }
+number     = @{ "-"? ~ ("0".."9")+"."? ("0".."9")* }
+unit       = @{ ("a".."z" | "A".."Z")+ }
+function   = { identifier ~ "(" ~ expression ~ ")" }
+identifier = @{ ("a".."z" | "A".."Z")+ }
