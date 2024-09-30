@@ -1844,6 +1844,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "flume"
+version = "0.10.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1657b4441c3403d9f7b3409e47575237dac27b1b5726df654a6ecbf92f0f7577"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+ "pin-project",
+ "spin 0.9.8",
+]
+
+[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2658,7 +2670,7 @@ dependencies = [
  "crossbeam-utils 0.8.20",
  "curl",
  "curl-sys",
- "flume",
+ "flume 0.9.2",
  "futures-lite 1.13.0",
  "http",
  "log",
@@ -2823,6 +2835,17 @@ checksum = "959c25552127d2e1fa72f0e52548ec04fc386e827ba71a7bd01db46a447dc135"
 dependencies = [
  "cc",
  "libc",
+]
+
+[[package]]
+name = "libsqlite3-sys"
+version = "0.24.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "898745e570c7d0453cc1fbc4a701eb6c662ed54e8fec8b7d14be137ebeeb9d14"
+dependencies = [
+ "cc",
+ "pkg-config",
+ "vcpkg",
 ]
 
 [[package]]
@@ -5275,6 +5298,9 @@ name = "spin"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
+dependencies = [
+ "lock_api 0.4.12",
+]
 
 [[package]]
 name = "spinning_top"
@@ -5352,8 +5378,10 @@ dependencies = [
  "crossbeam-queue",
  "either",
  "event-listener 2.5.3",
+ "flume 0.10.14",
  "futures-channel",
  "futures-core",
+ "futures-executor",
  "futures-intrusive",
  "futures-util",
  "hashlink",
@@ -5361,6 +5389,7 @@ dependencies = [
  "indexmap 1.9.3",
  "itoa",
  "libc",
+ "libsqlite3-sys",
  "log",
  "memchr",
  "once_cell",

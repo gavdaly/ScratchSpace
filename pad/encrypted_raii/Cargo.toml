@@ -15,6 +15,7 @@ bloom = "0.3"
 sqlx = { version = "0.5", features = [
     "runtime-tokio",
     "runtime-tokio-rustls",
+    "sqlite",
     "macros",
 ] }
 
