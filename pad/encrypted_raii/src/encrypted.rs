@@ -22,7 +22,22 @@ fn generate_key_pair() -> (Vec<u8>, Vec<u8>) {
     (private_key_pem, public_key_pem)
 }
 
+/// Represents an encrypted wrapper around a type `T` that can be converted to bytes.
 impl Encrypted<T: ToBytes> {
+    /// Encrypts the given data using AES-256-GCM encryption.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - The data to be encrypted, must implement `ToBytes` trait.
+    /// * `key` - The encryption key as a byte slice.
+    ///
+    /// # Returns
+    ///
+    /// A `Vec<u8>` containing the encrypted data.
+    ///
+    /// # Panics
+    ///
+    /// Panics if encryption fails.
     fn encrypt(data: T, key: &[u8]) -> Vec<u8> {
         let cipher = Aes256Gcm::new(Key::from_slice(key));
         let nonce = Nonce::from_slice(&[0u8; 12]); // Use a fixed nonce for deterministic encryption
@@ -31,6 +46,21 @@ impl Encrypted<T: ToBytes> {
             .encrypt(nonce, address.as_bytes())
             .expect("Encryption failure!")
     }
+
+    /// Decrypts the given encrypted data using AES-256-GCM decryption.
+    ///
+    /// # Arguments
+    ///
+    /// * `encrypted_data` - The encrypted data as a byte slice.
+    /// * `key` - The decryption key as a byte slice.
+    ///
+    /// # Returns
+    ///
+    /// The decrypted data of type `T`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if decryption fails.
     fn decrypt(encrypted_data: &[u8], key: &[u8]) -> T {
         let cipher = Aes256Gcm::new(Key::from_slice(key));
         let nonce = Nonce::from_slice(&[0u8; 12]);
