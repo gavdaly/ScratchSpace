@@ -10,7 +10,7 @@ pub enum PhoneType {
 
 #[derive(Debug)]
 pub struct Phone {
-    number: String,
+    _number: String,
     phone_type: PhoneType,
 }
 
@@ -18,7 +18,10 @@ impl Phone {
     pub async fn new(number: &str) -> Result<Phone> {
         let number = parse_phone_number(number)?;
         let phone_type = get_line_type(&number).await?;
-        Ok(Self { number, phone_type })
+        Ok(Self {
+            _number: number,
+            phone_type,
+        })
     }
     pub fn line_type(&self) -> PhoneType {
         self.phone_type
