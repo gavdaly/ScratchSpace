@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-clap = { version = "4.1.6", features = ["derive"] }
-reedline = "0.15.0"
+clap = { version = "4.5", features = ["derive"] }
+reedline = "0.35"
 pest = "2.7"
 pest_derive = "2.7"
 
