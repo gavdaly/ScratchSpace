@@ -1,27 +1,28 @@
-// calculator.pest
-// Grammar definitions for the calculator.
+expr = { n }
 
-// Ignored whitespace (spaces, tabs, newlines).
-WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+n = _{ unit ~ (bin_op ~ unit)* }
 
-// Top-level expression, includes conversion expressions.
-expression = { conversion | term ~ (("+" | "-") ~ term)* }
-term       = { factor ~ (("*" | "/") ~ factor)* }
-factor     = { power }
-power      = { unary ~ ("^" ~ power)? }
-unary      = { (("+" | "-"))* ~ primary }
-primary    = { number_with_unit | function | grouping }
+unit    = _{ float | integer | function | grouping }
+float   = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+integer = @{ "-"? ~ ASCII_DIGIT+ }
 
-// Grouping symbols: parentheses, square brackets, curly braces.
-grouping   = { "(" ~ expression ~ ")" | "[" ~ expression ~ "]" | "{" ~ expression ~ "}" }
+bin_op   =  { add | subtract | multiply | divide }
+add      = @{ "+" }
+subtract = @{ "-" }
+multiply = @{ "*" }
+divide   = @{ "/" }
 
-// Conversion expression, e.g., "5 kg to lb".
-conversion = { number_with_unit ~ _TO ~ unit }
-_TO        = _{ "to" }
+function =  { (sin | cos | tan | sqrt | log | ln) ~ "(" ~ (integer | float) ~ ")" }
+sin      = @{ "sin" }
+cos      = @{ "cos" }
+tan      = @{ "tan" }
+sqrt     = @{ "sqrt" }
+log      = @{ "log" }
+ln       = @{ "ln" }
 
-// Number with an optional unit, e.g., "5 kg".
-number_with_unit = { number ~ unit? }
-number     = @{ "-"? ~ ("0".."9")+"."? ("0".."9")* }
-unit       = @{ ("a".."z" | "A".."Z")+ }
-function   = { identifier ~ "(" ~ expression ~ ")" }
-identifier = @{ ("a".."z" | "A".."Z")+ }
+grouping = _{ curly | square | round }
+curly    =  { "{" ~ n ~ "}" }
+square   =  { "[" ~ n ~ "]" }
+round    =  { "(" ~ n ~ ")" }
+
+WHITESPACE = _{ " " | "\t" }
