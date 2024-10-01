@@ -6,8 +6,8 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.1.6", features = ["derive"] }
 reedline = "0.15.0"
-pest = "2.4.0"
-pest_derive = "2.4.0"
+pest = "2.7"
+pest_derive = "2.7"
 
 [lib]
 name = "textcalculator"
