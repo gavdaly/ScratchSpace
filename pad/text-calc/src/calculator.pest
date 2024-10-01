@@ -2,27 +2,42 @@ expr = { n }
 
 n = _{ unit ~ (bin_op ~ unit)* }
 
-unit    = _{ float | integer | function | grouping }
+unit    =  { float | integer | function | grouping }
 float   = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 
-bin_op   =  { add | subtract | multiply | divide }
+bin_op   =  { add | subtract | multiply | divide | power }
 add      = @{ "+" }
 subtract = @{ "-" }
 multiply = @{ "*" }
 divide   = @{ "/" }
+power    = @{ "^" }
 
-function =  { (sin | cos | tan | sqrt | log | ln) ~ "(" ~ (integer | float) ~ ")" }
+function =  { (sin | cos | tan | asin | acos | atan | sinh | cosh | tanh | asinh | acosh | atanh | exp | sqrt | log | ln | abs | ceil | floor | round) ~ "(" ~ (integer | float) ~ ")" }
 sin      = @{ "sin" }
 cos      = @{ "cos" }
 tan      = @{ "tan" }
+asin     = @{ "asin" }
+acos     = @{ "acos" }
+atan     = @{ "atan" }
+sinh     = @{ "sinh" }
+cosh     = @{ "cosh" }
+tanh     = @{ "tanh" }
+asinh    = @{ "asinh" }
+acosh    = @{ "acosh" }
+atanh    = @{ "atanh" }
 sqrt     = @{ "sqrt" }
-log      = @{ "log" }
+exp      = @{ "exp" }
 ln       = @{ "ln" }
+log      = @{ "log" }
+abs      = @{ "abs" }
+ceil     = @{ "ceil" }
+floor    = @{ "floor" }
+round    = @{ "round" }
 
-grouping = _{ curly | square | round }
+grouping = _{ curly | square | brackets }
 curly    =  { "{" ~ n ~ "}" }
 square   =  { "[" ~ n ~ "]" }
-round    =  { "(" ~ n ~ ")" }
+brackets =  { "(" ~ n ~ ")" }
 
 WHITESPACE = _{ " " | "\t" }

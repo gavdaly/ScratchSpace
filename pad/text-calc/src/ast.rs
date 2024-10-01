@@ -7,20 +7,6 @@
 pub enum Expr {
     /// A numeric literal.
     Number(f64),
-    /// A number with an optional unit (e.g., `5 kg`).
-    NumberWithUnit {
-        /// The numeric value.
-        value: f64,
-        /// The unit of the value, if any.
-        unit: Option<String>,
-    },
-    /// An expression with a unary operator (e.g., `-x`).
-    UnaryOp {
-        /// The unary operator.
-        op: UnaryOp,
-        /// The expression the operator is applied to.
-        expr: Box<Expr>,
-    },
     /// An expression with a binary operator (e.g., `x + y`).
     BinaryOp {
         /// The left-hand side expression.
@@ -33,26 +19,54 @@ pub enum Expr {
     /// A function call with a name and an argument (e.g., `sin(x)`).
     Function {
         /// The name of the function.
-        name: String,
+        name: Function,
         /// The argument of the function.
         arg: Box<Expr>,
     },
-    /// A unit conversion expression (e.g., `5 kg to lb`).
-    Conversion {
-        /// The expression to convert.
-        expr: Box<Expr>,
-        /// The target unit.
-        target_unit: String,
+    Grouping {
+        group: Group,
     },
 }
 
-/// Represents a unary operator.
 #[derive(Debug, Clone)]
-pub enum UnaryOp {
-    /// Unary plus (`+`).
-    Plus,
-    /// Unary minus (`-`).
-    Minus,
+pub enum Group {
+    Curly(Box<Expr>),
+    Square(Box<Expr>),
+    Paren(Box<Expr>),
+}
+
+#[derive(Debug, Clone)]
+pub enum Function {
+    Sin,
+    Cos,
+    Tan,
+    Asin,
+    Acos,
+    Atan,
+    Sinh,
+    Cosh,
+    Tanh,
+    Asinh,
+    Acosh,
+    Atanh,
+    Sqrt,
+    Exp,
+    Ln,
+    Log10,
+    Abs,
+    Ceil,
+    Floor,
+    Round,
+}
+
+#[derive(Debug, Clone)]
+pub enum Unit {
+    Kilogram,
+    Pound,
+    Meter,
+    Foot,
+    Mile,
+    Yard,
 }
 
 /// Represents a binary operator.
@@ -69,4 +83,3 @@ pub enum BinaryOp {
     /// Exponentiation operator (`^`).
     Power,
 }
-
