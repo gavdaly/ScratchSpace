@@ -4,11 +4,11 @@
 //! Supports CLI mode, TUI mode, and scripting mode.
 
 mod ast;
-mod parser;
 mod evaluator;
+mod parser;
 
 use clap::{Parser, Subcommand};
-use evaluator::ValueWithUnit;
+// use evaluator::ValueWithUnit;
 
 /// Command-line arguments for the calculator.
 #[derive(Parser, Debug)]
@@ -48,50 +48,51 @@ fn main() {
                 }
             }
         }
-    } else if let Some(expression) = args.expression {
+    } else if let Some(_expression) = args.expression {
         // CLI Mode: Evaluate the expression provided as an argument
-        match evaluate_expression(&expression) {
-            Ok(result) => print_result(&result),
-            Err(e) => eprintln!("Error: {}", e),
-        }
+        // match evaluate_expression(&expression) {
+        //     Ok(result) => print_result(&result),
+        //     Err(e) => eprintln!("Error: {}", e),
+        // }
     } else {
         // TUI Mode: Enter interactive calculator mode
         run_tui();
     }
 }
 
-/// Evaluates a single expression string.
-///
-/// # Arguments
-///
-/// * `expression` - The expression string to evaluate.
-///
-/// # Returns
-///
-/// * `Ok(ValueWithUnit)` - The result of the evaluation.
-/// * `Err(String)` - An error message if evaluation fails.
-fn evaluate_expression(expression: &str) -> Result<ValueWithUnit, String> {
-    match parser::parse_expression(expression) {
-        Ok(ast) => evaluator::evaluate(&ast).map_err(|e| format!("Error evaluating '{}': {}", expression, e)),
-        Err(e) => Err(format!("Error parsing expression '{}': {}", expression, e)),
-    }
-}
+// Evaluates a single expression string.
 
-/// Prints the result, including the unit if present.
-///
-/// # Arguments
-///
-/// * `result` - The result to print.
-fn print_result(result: &ValueWithUnit) {
-    if let Some(unit) = &result.unit {
-        println!("Result: {} {}", result.value, unit);
-    } else {
-        println!("Result: {}", result.value);
-    }
-}
+// # Arguments
+
+// * `expression` - The expression string to evaluate.
+
+// # Returns
+
+// * `Ok(ValueWithUnit)` - The result of the evaluation.
+// * `Err(String)` - An error message if evaluation fails.
+// fn evaluate_expression(expression: &str) -> Result<ValueWithUnit, String> {
+//     match parser::parse_expression(expression) {
+//         Ok(ast) => evaluator::evaluate(&ast)
+//             .map_err(|e| format!("Error evaluating '{}': {}", expression, e)),
+//         Err(e) => Err(format!("Error parsing expression '{}': {}", expression, e)),
+//     }
+// }
+
+// Prints the result, including the unit if present.
+
+// # Arguments
+
+// * `result` - The result to print.
+// fn print_result(result: &ValueWithUnit) {
+//     if let Some(unit) = &result.unit {
+//         println!("Result: {} {}", result.value, unit);
+//     } else {
+//         println!("Result: {}", result.value);
+//     }
+// }
 
 use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::io::{BufRead, BufReader};
 
 /// Runs the calculator in scripting mode, evaluating expressions from a file.
 ///
@@ -117,15 +118,15 @@ fn run_script(script_path: &str) -> Result<(), String> {
             continue;
         }
 
-        match evaluate_expression(expression) {
-            Ok(result) => {
-                print!("Line {}: ", line_number);
-                print_result(&result);
-            }
-            Err(e) => {
-                eprintln!("Error on line {}: {}", line_number, e);
-            }
-        }
+        // match evaluate_expression(expression) {
+        //     Ok(result) => {
+        //         print!("Line {}: ", line_number);
+        //         print_result(&result);
+        //     }
+        //     Err(e) => {
+        //         eprintln!("Error on line {}: {}", line_number, e);
+        //     }
+        // }
     }
 
     Ok(())
@@ -140,16 +141,18 @@ fn run_tui() {
     loop {
         let sig = line_editor.read_line(&prompt);
         match sig {
-            Ok(input) => {
-                let expression = input.trim();
-                if expression.eq_ignore_ascii_case("exit") || expression.eq_ignore_ascii_case("quit") {
-                    break;
-                }
+            Ok(_input) => {
+                // let expression = input.trim();
+                // if expression.eq_ignore_ascii_case("exit")
+                //     || expression.eq_ignore_ascii_case("quit")
+                // {
+                //     break;
+                // }
 
-                match evaluate_expression(expression) {
-                    Ok(result) => print_result(&result),
-                    Err(e) => eprintln!("{}", e),
-                }
+                // match evaluate_expression(expression) {
+                //     Ok(result) => print_result(&result),
+                //     Err(e) => eprintln!("{}", e),
+                // }
             }
             Err(err) => {
                 eprintln!("Error reading input: {}", err);
