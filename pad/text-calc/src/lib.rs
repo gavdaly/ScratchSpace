@@ -4,5 +4,11 @@
 //! including support for units, functions, and conversions.
 
 pub mod ast;
-pub mod parser;
 pub mod evaluator;
+pub mod parser;
+
+pub fn evaluate(expression: &str) -> Result<f64, String> {
+    let ast = parser::parse_expression(expression)?;
+    let result = evaluator::evaluate(&ast)?;
+    Ok(result)
+}
