@@ -4,11 +4,14 @@
 //! Supports CLI mode, TUI mode, and scripting mode.
 
 mod ast;
+mod error;
 mod evaluator;
 mod parser;
 
 use clap::{Parser, Subcommand};
-// use evaluator::ValueWithUnit;
+
+use crate::evaluator::evaluate;
+use crate::parser::parse_expression;
 
 /// Command-line arguments for the calculator.
 #[derive(Parser, Debug)]
@@ -40,56 +43,36 @@ fn main() {
 
     if let Some(command) = args.command {
         match command {
-            Commands::Eval { script } => {
-                // Scripting Mode: Evaluate expressions from a script file
-                match run_script(&script) {
-                    Ok(_) => (),
-                    Err(e) => eprintln!("Error: {}", e),
-                }
-            }
+            Commands::Eval { script } => match run_script(&script) {
+                Ok(_) => (),
+                Err(e) => eprintln!("Error: {}", e),
+            },
         }
-    } else if let Some(_expression) = args.expression {
-        // CLI Mode: Evaluate the expression provided as an argument
-        // match evaluate_expression(&expression) {
-        //     Ok(result) => print_result(&result),
-        //     Err(e) => eprintln!("Error: {}", e),
-        // }
+    } else if let Some(expression) = args.expression {
+        match evaluate_expression(&expression) {
+            Ok(result) => println!("Result: {result}"),
+            Err(e) => eprintln!("Error: {}", e),
+        }
     } else {
         // TUI Mode: Enter interactive calculator mode
         run_tui();
     }
 }
 
-// Evaluates a single expression string.
-
-// # Arguments
-
-// * `expression` - The expression string to evaluate.
-
-// # Returns
-
-// * `Ok(ValueWithUnit)` - The result of the evaluation.
-// * `Err(String)` - An error message if evaluation fails.
-// fn evaluate_expression(expression: &str) -> Result<ValueWithUnit, String> {
-//     match parser::parse_expression(expression) {
-//         Ok(ast) => evaluator::evaluate(&ast)
-//             .map_err(|e| format!("Error evaluating '{}': {}", expression, e)),
-//         Err(e) => Err(format!("Error parsing expression '{}': {}", expression, e)),
-//     }
-// }
-
-// Prints the result, including the unit if present.
-
-// # Arguments
-
-// * `result` - The result to print.
-// fn print_result(result: &ValueWithUnit) {
-//     if let Some(unit) = &result.unit {
-//         println!("Result: {} {}", result.value, unit);
-//     } else {
-//         println!("Result: {}", result.value);
-//     }
-// }
+/// Evaluates a single expression string.
+/// # Arguments
+/// * `expression` - The expression string to evaluate.
+/// # Returns
+/// * `Ok(ValueWithUnit)` - The result of the evaluation.
+/// * `Err(String)` - An error message if evaluation fails.
+fn evaluate_expression(expression: &str) -> Result<f64, String> {
+    match parser::parse_expression(expression) {
+        Ok(ast) => {
+            evaluator::evaluate(&ast).map_err(|e| format!("Error evaluating '{expression}': {e}"))
+        }
+        Err(e) => Err(format!("Error parsing expression '{}': {}", expression, e)),
+    }
+}
 
 use std::fs::File;
 use std::io::{BufRead, BufReader};
@@ -117,16 +100,16 @@ fn run_script(script_path: &str) -> Result<(), String> {
             // Skip empty lines and comments
             continue;
         }
-
-        // match evaluate_expression(expression) {
-        //     Ok(result) => {
-        //         print!("Line {}: ", line_number);
-        //         print_result(&result);
-        //     }
-        //     Err(e) => {
-        //         eprintln!("Error on line {}: {}", line_number, e);
-        //     }
-        // }
+        let expression =
+            parse_expression(expression).map_err(|e| format!("Error parsing expression: {}", e))?;
+        match evaluate(&expression) {
+            Ok(result) => {
+                print!("Line {line_number}: {result}");
+            }
+            Err(e) => {
+                eprintln!("Error on line {}: {}", line_number, e);
+            }
+        }
     }
 
     Ok(())
@@ -135,29 +118,8 @@ fn run_script(script_path: &str) -> Result<(), String> {
 /// Runs the calculator in interactive mode (TUI).
 fn run_tui() {
     use reedline::{DefaultPrompt, Reedline};
-    let mut line_editor = Reedline::create();
-    let prompt = DefaultPrompt::default();
+    let mut _line_editor = Reedline::create();
+    let _prompt = DefaultPrompt::default();
 
-    loop {
-        let sig = line_editor.read_line(&prompt);
-        match sig {
-            Ok(_input) => {
-                // let expression = input.trim();
-                // if expression.eq_ignore_ascii_case("exit")
-                //     || expression.eq_ignore_ascii_case("quit")
-                // {
-                //     break;
-                // }
-
-                // match evaluate_expression(expression) {
-                //     Ok(result) => print_result(&result),
-                //     Err(e) => eprintln!("{}", e),
-                // }
-            }
-            Err(err) => {
-                eprintln!("Error reading input: {}", err);
-                break;
-            }
-        }
-    }
+    unimplemented!("TUI mode is not yet implemented.");
 }

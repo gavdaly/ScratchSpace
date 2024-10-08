@@ -3,7 +3,7 @@
 //! This module evaluates the AST and computes the result, handling units and conversions.
 
 use crate::ast::{BinaryOp, Expr as Expression, Function, Group};
-
+use crate::error::{Error, Result};
 /// Evaluates an expression AST and computes the result.
 ///
 /// # Arguments
@@ -15,7 +15,7 @@ use crate::ast::{BinaryOp, Expr as Expression, Function, Group};
 /// * `Ok(f64)` - The computed value with unit.
 /// * `Err(String)` - An error message if evaluation fails.
 ///
-pub fn evaluate(expr: &Expression) -> Result<f64, String> {
+pub fn evaluate(expr: &Expression) -> Result<f64> {
     let value = match expr {
         Expression::Number(n) => *n,
         Expression::BinaryOp { left, op, right } => {
@@ -28,7 +28,7 @@ pub fn evaluate(expr: &Expression) -> Result<f64, String> {
                 BinaryOp::Multiply => left_result * right_result,
                 BinaryOp::Divide => {
                     if right_result == 0.0 {
-                        return Err("Division by zero error".to_string());
+                        return Err(Error::EvaluationError(format!("Division by zero error")));
                     }
                     left_result / right_result
                 }

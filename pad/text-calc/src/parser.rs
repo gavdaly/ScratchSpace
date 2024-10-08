@@ -2,6 +2,7 @@
 //!
 //! This module uses Pest to parse input strings into an AST.
 use crate::ast::{BinaryOp, Expr, Function};
+use crate::error::{Error, Result};
 use pest::error::Error as PestError;
 use pest::iterators::Pair;
 use pest::Parser;
@@ -22,11 +23,12 @@ pub struct CalculatorParser;
 ///
 /// * `Ok(Expr)` - The parsed expression as an AST.
 /// * `Err(String)` - An error message if parsing fails.
-pub fn parse_expression(expression: &str) -> Result<Expr, String> {
+pub fn parse_expression(expression: &str) -> Result<Expr> {
     let pairs =
-        CalculatorParser::parse(Rule::expr, expression).map_err(|e| format_pest_error(e))?;
+        CalculatorParser::parse(Rule::expr, expression).map_err(|e| Error::ParsingError(e))?;
 
     let pair = pairs.into_iter().next().unwrap();
+    dbg!(&pair);
     build_expr(pair)
 }
 
@@ -53,7 +55,7 @@ fn format_pest_error(error: PestError<Rule>) -> String {
 ///
 /// * `Ok(Expr)` - The constructed AST node.
 /// * `Err(String)` - An error message if AST construction fails.
-fn build_expr(pair: Pair<Rule>) -> Result<Expr, String> {
+fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
     match pair.as_rule() {
         Rule::expr | Rule::grouping => {
             let mut inner_rules = pair.into_inner();
@@ -89,7 +91,12 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr, String> {
                         op: BinaryOp::Power,
                         right: Box::new(next_expr),
                     },
-                    _ => return Err(format!("Unknown operator: {}", operator)),
+                    _ => {
+                        return Err(Error::EvaluationError(format!(
+                            "Unknown operator: {}",
+                            operator
+                        )))
+                    }
                 };
             }
             Ok(result)
@@ -102,6 +109,9 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr, String> {
                 arg: Box::new(arg),
             })
         }
-        _ => Err(format!("Unhandled rule: {:?}", pair.as_rule())),
+        _ => Err(Error::EvaluationError(format!(
+            "Unhandled rule: {:?}",
+            pair.as_rule()
+        ))),
     }
 }
