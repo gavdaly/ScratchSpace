@@ -28,7 +28,6 @@ pub fn parse_expression(expression: &str) -> Result<Expr> {
         CalculatorParser::parse(Rule::expr, expression).map_err(|e| Error::ParsingError(e))?;
 
     let pair = pairs.into_iter().next().unwrap();
-    dbg!(&pair);
     build_expr(pair)
 }
 
@@ -112,6 +111,10 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
                 name: Function::Sin,
                 arg: Box::new(arg),
             })
+        }
+        Rule::brackets => {
+            let inner = pair.into_inner().next().unwrap();
+            build_expr(inner)
         }
         _ => Err(Error::EvaluationError(format!(
             "Unhandled rule: {:?}",
