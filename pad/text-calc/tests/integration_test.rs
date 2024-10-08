@@ -1,6 +1,12 @@
 use textcalculator::evaluate;
 
 #[test]
+fn test_one_plus_one() {
+    let result = evaluate("1 + 1").unwrap();
+    assert!((result - 2.).abs() < 0.0001);
+}
+
+#[test]
 fn test_simple_expression() {
     let result = evaluate("3 + 4 * 2 / (1 - 5) ^ 2 ^ 3").unwrap();
     assert!((result - 3.0001220703125).abs() < 0.0001);

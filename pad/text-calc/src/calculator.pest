@@ -2,8 +2,8 @@ expr = { n }
 
 n = _{ unit ~ (bin_op ~ unit)* }
 
-unit    =  { float | integer | function | grouping }
-float   = @{ "-"? ~ ASCII_DIGIT+ ~ "." ~ ASCII_DIGIT+ }
+unit    = _{ float | function | grouping }
+float   = @{ "-"? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 
 bin_op   =  { add | subtract | multiply | divide | power }

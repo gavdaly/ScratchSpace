@@ -101,6 +101,10 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
             }
             Ok(result)
         }
+        Rule::float => {
+            let value: f64 = pair.as_span().as_str().parse().unwrap();
+            Ok(Expr::Number(value))
+        }
         Rule::function => {
             let mut inner_rules = pair.into_inner();
             let arg = build_expr(inner_rules.next().unwrap())?;
