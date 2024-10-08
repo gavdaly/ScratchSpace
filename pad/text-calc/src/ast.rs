@@ -59,16 +59,6 @@ pub enum Function {
     Round,
 }
 
-#[derive(Debug, Clone)]
-pub enum Unit {
-    Kilogram,
-    Pound,
-    Meter,
-    Foot,
-    Mile,
-    Yard,
-}
-
 /// Represents a binary operator.
 #[derive(Debug, Clone)]
 pub enum BinaryOp {
