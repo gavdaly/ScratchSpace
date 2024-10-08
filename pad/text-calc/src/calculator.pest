@@ -36,8 +36,8 @@ floor    = @{ "floor" }
 round    = @{ "round" }
 
 grouping = _{ curly | square | brackets }
-curly    =  { "{" ~ n ~ "}" }
-square   =  { "[" ~ n ~ "]" }
-brackets =  { "(" ~ n ~ ")" }
+curly    =  { "{" ~ expr ~ "}" }
+square   =  { "[" ~ expr ~ "]" }
+brackets =  { "(" ~ expr ~ ")" }
 
 WHITESPACE = _{ " " | "\t" }
