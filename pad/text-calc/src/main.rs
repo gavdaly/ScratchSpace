@@ -44,14 +44,14 @@ fn main() {
     if let Some(command) = args.command {
         match command {
             Commands::Eval { script } => match run_script(&script) {
-                Ok(_) => (),
-                Err(e) => eprintln!("Error: {}", e),
+                Ok(()) => (),
+                Err(e) => eprintln!("Error: {e}"),
             },
         }
     } else if let Some(expression) = args.expression {
         match evaluate_expression(&expression) {
             Ok(result) => println!("Result: {result}"),
-            Err(e) => eprintln!("Error: {}", e),
+            Err(e) => eprintln!("Error: {e}"),
         }
     } else {
         // TUI Mode: Enter interactive calculator mode
@@ -70,7 +70,7 @@ fn evaluate_expression(expression: &str) -> Result<f64, String> {
         Ok(ast) => {
             evaluator::evaluate(&ast).map_err(|e| format!("Error evaluating '{expression}': {e}"))
         }
-        Err(e) => Err(format!("Error parsing expression '{}': {}", expression, e)),
+        Err(e) => Err(format!("Error parsing expression '{expression}': {e}")),
     }
 }
 
@@ -88,12 +88,12 @@ use std::io::{BufRead, BufReader};
 /// * `Ok(())` - If the script was executed successfully.
 /// * `Err(String)` - An error message if execution fails.
 fn run_script(script_path: &str) -> Result<(), String> {
-    let file = File::open(script_path).map_err(|e| format!("Failed to open script file: {}", e))?;
+    let file = File::open(script_path).map_err(|e| format!("Failed to open script file: {e}"))?;
     let reader = BufReader::new(file);
 
     for (line_number, line_result) in reader.lines().enumerate() {
         let line_number = line_number + 1; // Line numbers start at 1
-        let line = line_result.map_err(|e| format!("Error reading script file: {}", e))?;
+        let line = line_result.map_err(|e| format!("Error reading script file: {e}"))?;
         let expression = line.trim();
 
         if expression.is_empty() || expression.starts_with('#') {
@@ -101,13 +101,13 @@ fn run_script(script_path: &str) -> Result<(), String> {
             continue;
         }
         let expression =
-            parse_expression(expression).map_err(|e| format!("Error parsing expression: {}", e))?;
+            parse_expression(expression).map_err(|e| format!("Error parsing expression: {e}"))?;
         match evaluate(&expression) {
             Ok(result) => {
                 print!("Line {line_number}: {result}");
             }
             Err(e) => {
-                eprintln!("Error on line {}: {}", line_number, e);
+                eprintln!("Error on line {line_number}: {e}");
             }
         }
     }

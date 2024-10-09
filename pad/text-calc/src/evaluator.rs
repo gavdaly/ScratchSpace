@@ -6,17 +6,21 @@ use crate::ast::{BinaryOp, Constant, Expr as Expression, Function, Group};
 use crate::error::{Error, Result};
 use std::f64::consts;
 
-/// Evaluates an expression AST and computes the result.
+/// Evaluates the given expression and returns the computed result.
 ///
 /// # Arguments
 ///
-/// * `expr` - The expression AST to evaluate.
+/// * `expr` - A reference to the Expression to be evaluated.
 ///
 /// # Returns
 ///
-/// * `Ok(f64)` - The computed value with unit.
-/// * `Err(String)` - An error message if evaluation fails.
+/// * `Result<f64>` - The computed result as a float, or an error if evaluation fails.
 ///
+/// # Errors
+///
+/// This function will return an error if:
+/// * Division by zero is attempted
+/// * Any other evaluation error occurs (e.g., invalid function arguments)
 pub fn evaluate(expr: &Expression) -> Result<f64> {
     let value = match expr {
         Expression::Number(n) => *n,
@@ -30,7 +34,9 @@ pub fn evaluate(expr: &Expression) -> Result<f64> {
                 BinaryOp::Multiply => left_result * right_result,
                 BinaryOp::Divide => {
                     if right_result == 0.0 {
-                        return Err(Error::EvaluationError(format!("Division by zero error")));
+                        return Err(Box::new(Error::EvaluationError(
+                            "Division by zero error".to_string(),
+                        )));
                     }
                     left_result / right_result
                 }

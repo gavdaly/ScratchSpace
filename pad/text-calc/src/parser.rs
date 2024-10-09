@@ -3,43 +3,63 @@
 //! This module uses Pest to parse input strings into an AST.
 use crate::ast::{BinaryOp, Constant, Expr, Function, Group};
 use crate::error::{Error, Result};
-use pest::iterators::Pair;
+use pest::iterators::{Pair, Pairs};
 use pest::Parser;
 use pest_derive::Parser;
 
 /// Pest parser for the calculator, based on the grammar defined in `calculator.pest`.
 #[derive(Parser)]
 #[grammar = "calculator.pest"]
-pub struct CalculatorParser;
+pub struct Calculator;
 
-/// Parses an expression string into an AST.
+/// Parses a string expression into an abstract syntax tree (AST).
+///
+/// This function takes a string representation of a mathematical expression
+/// and converts it into an `Expr` enum, which represents the AST of the expression.
 ///
 /// # Arguments
 ///
-/// * `expression` - The expression string to parse.
+/// * `expression` - A string slice that holds the mathematical expression to be parsed.
 ///
 /// # Returns
 ///
-/// * `Ok(Expr)` - The parsed expression as an AST.
-/// * `Err(String)` - An error message if parsing fails.
-pub fn parse_expression(expression: &str) -> Result<Expr> {
-    let pairs =
-        CalculatorParser::parse(Rule::expr, expression).map_err(|e| Error::ParsingError(e))?;
+/// * `Result<Expr>` - Returns an `Ok(Expr)` if parsing is successful, or an `Err` containing
+///   the parsing error if unsuccessful.
+///
+/// # Errors
+///
+/// This function will return an error if the input string cannot be parsed into a valid expression.
 
-    let pair = pairs.into_iter().next().unwrap();
+pub fn parse_expression(expression: &str) -> Result<Expr> {
+    let pairs: Pairs<_> = Calculator::parse(Rule::expr, expression)
+        .map_err(|e| Box::new(Error::ParsingError(Box::new(e))))?;
+
+    let pair = pairs
+        .into_iter()
+        .next()
+        .ok_or(Box::new(Error::EvaluationError("No data".into())))?;
     build_expr(pair)
 }
 
-/// Recursively builds the AST from the parsed pairs.
+/// Recursively builds an abstract syntax tree (AST) from a Pest parse tree.
+///
+/// This function traverses the parse tree produced by Pest and constructs
+/// the corresponding AST nodes represented by the `Expr` enum.
 ///
 /// # Arguments
 ///
-/// * `pair` - A pair from the Pest parser.
+/// * `pair` - A `Pair<Rule>` representing a node in the Pest parse tree.
 ///
 /// # Returns
 ///
-/// * `Ok(Expr)` - The constructed AST node.
-/// * `Err(String)` - An error message if AST construction fails.
+/// * `Result<Expr>` - Returns an `Ok(Expr)` if the AST node is successfully built,
+///   or an `Err` containing the evaluation error if unsuccessful.
+///
+/// # Errors
+///
+/// This function will return an error if it encounters an unexpected rule or
+/// if there's an issue in constructing a valid `Expr` from the given pair.
+
 fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
     match pair.as_rule() {
         Rule::expr => {
@@ -78,33 +98,25 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
                         right: Box::new(next_expr),
                     },
                     _ => {
-                        return Err(Error::EvaluationError(format!(
-                            "Unknown operator: {:?}",
-                            operator
-                        )))
+                        return Err(Box::new(Error::EvaluationError(format!(
+                            "Unknown operator: {operator:?}"
+                        ))))
                     }
                 };
             }
             Ok(result)
         }
-        Rule::float => {
+        Rule::float | Rule::integer => {
             let value: f64 = pair.as_span().as_str().parse().unwrap();
             Ok(Expr::Number(value))
         }
-        Rule::integer => {
-            let value: f64 = pair.as_span().as_str().parse().unwrap();
-            Ok(Expr::Number(value))
-        }
-
         Rule::constant => match &pair.as_rule() {
             Rule::e => Ok(Expr::Constant(Constant::E)),
             Rule::pi => Ok(Expr::Constant(Constant::Pi)),
-            _ => {
-                return Err(Error::EvaluationError(format!(
-                    "Unknown constant: {}",
-                    pair.as_str()
-                )))
-            }
+            _ => Err(Box::new(Error::EvaluationError(format!(
+                "Unknown constant: {}",
+                pair.as_str()
+            )))),
         },
 
         Rule::function => {
@@ -192,10 +204,9 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
                     name: Function::Round,
                     arg: Box::new(arg),
                 }),
-                _ => Err(Error::EvaluationError(format!(
-                    "Unknown function: {:?}",
-                    rule
-                ))),
+                _ => Err(Box::new(Error::EvaluationError(format!(
+                    "Unknown function: {rule:?}"
+                )))),
             }
         }
         Rule::grouping => {
@@ -207,16 +218,15 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
                 Rule::brackets => Ok(Expr::Grouping(Group::Paren(Box::new(arg)))),
                 Rule::square => Ok(Expr::Grouping(Group::Square(Box::new(arg)))),
                 Rule::curly => Ok(Expr::Grouping(Group::Curly(Box::new(arg)))),
-                _ => Err(Error::EvaluationError(format!(
-                    "Unknown grouping: {:?}",
-                    rule
-                ))),
+                _ => Err(Box::new(Error::EvaluationError(format!(
+                    "Unknown grouping: {rule:?}"
+                )))),
             }
         }
-        _ => Err(Error::EvaluationError(format!(
+        _ => Err(Box::new(Error::EvaluationError(format!(
             "Unhandled rule: {:?}",
             pair.as_rule()
-        ))),
+        )))),
     }
 }
 

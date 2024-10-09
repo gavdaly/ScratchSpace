@@ -14,7 +14,7 @@ fn test_one_plus_one() {
 #[test]
 fn test_simple_expression() {
     let result = evaluate("3 + 4 * 2 / (1 - 5) ^ 2 ^ 3").unwrap();
-    assert_eq!(approximate(result, 12), approximate(3.0001220703125, 12));
+    assert_eq!(approximate(result, 12), approximate(3.000_122_070_312_5, 12));
 }
 
 #[test]
