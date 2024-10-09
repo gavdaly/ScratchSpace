@@ -200,4 +200,17 @@ mod tests {
             }
         );
     }
+
+    #[test]
+    fn test_parse_expression_with_constants() {
+        let expr = parse_expression("pi + e").unwrap();
+        assert_eq!(
+            expr,
+            Expr::BinaryOp {
+                left: Box::new(Expr::Number(std::f64::consts::PI)),
+                op: BinaryOp::Add,
+                right: Box::new(Expr::Number(std::f64::consts::E)),
+            }
+        );
+    }
 }

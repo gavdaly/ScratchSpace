@@ -26,6 +26,9 @@ pub enum Expr {
     Grouping {
         group: Group,
     },
+    Constant {
+        constant: Constant,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -33,6 +36,12 @@ pub enum Group {
     Curly(Box<Expr>),
     Square(Box<Expr>),
     Paren(Box<Expr>),
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Constant {
+    Pi,
+    E,
 }
 
 #[derive(Debug, Clone, PartialEq)]

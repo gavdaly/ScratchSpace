@@ -2,8 +2,10 @@
 //!
 //! This module evaluates the AST and computes the result, handling units and conversions.
 
-use crate::ast::{BinaryOp, Expr as Expression, Function, Group};
+use crate::ast::{BinaryOp, Constant, Expr as Expression, Function, Group};
 use crate::error::{Error, Result};
+use std::f64::consts;
+
 /// Evaluates an expression AST and computes the result.
 ///
 /// # Arguments
@@ -64,6 +66,10 @@ pub fn evaluate(expr: &Expression) -> Result<f64> {
             Group::Curly(expr) => evaluate(expr)?,
             Group::Square(expr) => evaluate(expr)?,
             Group::Paren(expr) => evaluate(expr)?,
+        },
+        Expression::Constant { constant } => match constant {
+            Constant::Pi => consts::PI,
+            Constant::E => consts::E,
         },
     };
     Ok(value)
