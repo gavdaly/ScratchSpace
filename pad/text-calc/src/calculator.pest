@@ -2,7 +2,7 @@ expr = { n }
 
 n = _{ unit ~ (bin_op ~ unit)* }
 
-unit    = _{ float | function | grouping }
+unit    = _{ float | function | grouping | constant }
 float   = @{ "-"? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
 integer = @{ "-"? ~ ASCII_DIGIT+ }
 
@@ -13,7 +13,11 @@ multiply = @{ "*" }
 divide   = @{ "/" }
 power    = @{ "^" }
 
-function =  { (sin | cos | tan | asin | acos | atan | sinh | cosh | tanh | asinh | acosh | atanh | exp | sqrt | log | ln | abs | ceil | floor | round) ~ "(" ~ (integer | float) ~ ")" }
+constant =  { (pi | e) }
+pi       = @{ "pi" }
+e        = @{ "e" }
+
+function =  { (sin | cos | tan | asin | acos | atan | sinh | cosh | tanh | asinh | acosh | atanh | exp | sqrt | log | ln | abs | ceil | floor | round) ~ "(" ~ expr ~ ")" }
 sin      = @{ "sin" }
 cos      = @{ "cos" }
 tan      = @{ "tan" }

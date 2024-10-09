@@ -104,6 +104,25 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
             let value: f64 = pair.as_span().as_str().parse().unwrap();
             Ok(Expr::Number(value))
         }
+        Rule::integer => {
+            let value: f64 = pair.as_span().as_str().parse().unwrap();
+            Ok(Expr::Number(value))
+        }
+        Rule::constant => {
+            let constant = pair.as_str();
+            let value = match constant {
+                "pi" => std::f64::consts::PI,
+                "e" => std::f64::consts::E,
+                _ => {
+                    return Err(Error::EvaluationError(format!(
+                        "Unknown constant: {}",
+                        constant
+                    )))
+                }
+            };
+            Ok(Expr::Number(value))
+        }
+
         Rule::function => {
             let mut inner_rules = pair.into_inner();
             let arg = build_expr(inner_rules.next().unwrap())?;
