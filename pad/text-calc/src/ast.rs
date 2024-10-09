@@ -3,7 +3,7 @@
 //! This module defines the structures used to represent parsed expressions.
 
 /// Represents an expression node in the AST.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     /// A numeric literal.
     Number(f64),
@@ -28,14 +28,14 @@ pub enum Expr {
     },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Group {
     Curly(Box<Expr>),
     Square(Box<Expr>),
     Paren(Box<Expr>),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Function {
     Sin,
     Cos,
@@ -60,7 +60,7 @@ pub enum Function {
 }
 
 /// Represents a binary operator.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum BinaryOp {
     /// Addition operator (`+`).
     Add,

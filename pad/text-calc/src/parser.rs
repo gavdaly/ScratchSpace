@@ -141,3 +141,63 @@ fn build_expr(pair: Pair<Rule>) -> Result<Expr> {
         ))),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_expression() {
+        let expr = parse_expression("1 + 2").unwrap();
+        assert_eq!(
+            expr,
+            Expr::BinaryOp {
+                left: Box::new(Expr::Number(1.0)),
+                op: BinaryOp::Add,
+                right: Box::new(Expr::Number(2.0)),
+            }
+        );
+    }
+
+    #[test]
+    fn test_parse_expression_with_brackets() {
+        let expr = parse_expression("(1 + 2) * 3").unwrap();
+        assert_eq!(
+            expr,
+            Expr::BinaryOp {
+                left: Box::new(Expr::BinaryOp {
+                    left: Box::new(Expr::Number(1.0)),
+                    op: BinaryOp::Add,
+                    right: Box::new(Expr::Number(2.0)),
+                }),
+                op: BinaryOp::Multiply,
+                right: Box::new(Expr::Number(3.0)),
+            }
+        );
+    }
+
+    #[test]
+    fn test_parse_expression_with_function() {
+        let expr = parse_expression("sin(1)").unwrap();
+        assert_eq!(
+            expr,
+            Expr::Function {
+                name: Function::Sin,
+                arg: Box::new(Expr::Number(1.0)),
+            }
+        );
+    }
+
+    #[test]
+    fn test_parse_expression_with_power() {
+        let expr = parse_expression("2^3").unwrap();
+        assert_eq!(
+            expr,
+            Expr::BinaryOp {
+                left: Box::new(Expr::Number(2.0)),
+                op: BinaryOp::Power,
+                right: Box::new(Expr::Number(3.0)),
+            }
+        );
+    }
+}
