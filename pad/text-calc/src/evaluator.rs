@@ -62,12 +62,12 @@ pub fn evaluate(expr: &Expression) -> Result<f64> {
                 Function::Round => arg_result.round(),
             }
         }
-        Expression::Grouping { group } => match group {
+        Expression::Grouping(group) => match group {
             Group::Curly(expr) => evaluate(expr)?,
             Group::Square(expr) => evaluate(expr)?,
             Group::Paren(expr) => evaluate(expr)?,
         },
-        Expression::Constant { constant } => match constant {
+        Expression::Constant(constant) => match constant {
             Constant::Pi => consts::PI,
             Constant::E => consts::E,
         },

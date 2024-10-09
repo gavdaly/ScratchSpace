@@ -23,12 +23,8 @@ pub enum Expr {
         /// The argument of the function.
         arg: Box<Expr>,
     },
-    Grouping {
-        group: Group,
-    },
-    Constant {
-        constant: Constant,
-    },
+    Grouping(Group),
+    Constant(Constant),
 }
 
 #[derive(Debug, Clone, PartialEq)]

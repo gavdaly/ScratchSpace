@@ -1,6 +1,4 @@
-expr = { n }
-
-n = _{ unit ~ (bin_op ~ unit)* }
+expr = { unit ~ (bin_op ~ unit)* }
 
 unit    = _{ float | function | grouping | constant }
 float   = @{ "-"? ~ ASCII_DIGIT+ ~ ("." ~ ASCII_DIGIT+)? }
@@ -39,9 +37,9 @@ ceil     = @{ "ceil" }
 floor    = @{ "floor" }
 round    = @{ "round" }
 
-grouping = _{ curly | square | brackets }
-curly    =  { "{" ~ expr ~ "}" }
-square   =  { "[" ~ expr ~ "]" }
-brackets =  { "(" ~ expr ~ ")" }
+grouping =  { curly | square | brackets }
+curly    = @{ "{" ~ expr ~ "}" }
+square   = @{ "[" ~ expr ~ "]" }
+brackets = @{ "(" ~ expr ~ ")" }
 
 WHITESPACE = _{ " " | "\t" }
